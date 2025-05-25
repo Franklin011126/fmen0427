@@ -1,0 +1,197 @@
+# main.py - Main entry file. Run this in Ed to start ChatPet 🐾
+
+import random
+
+# ------------------------
+# 🐾 Pet Selection & Initialization
+# ------------------------
+
+def choose_pet():
+    print("Welcome to ChatPet!")
+    print("Choose your pet:")
+    print("1. 🐶 Dog\n2. 🐱 Cat\n3. 🐰 Bunny\n4. 🐢 Turtle")
+
+    pets = {
+        "1": {"type": "Dog", "hunger": 5, "happiness": 8, "energy": 7},
+        "2": {"type": "Cat", "hunger": 3, "happiness": 6, "energy": 6},
+        "3": {"type": "Bunny", "hunger": 4, "happiness": 7, "energy": 5},
+        "4": {"type": "Turtle", "hunger": 2, "happiness": 5, "energy": 4},
+    }
+
+    choice = input("Enter the number of your chosen pet (1-4): ")
+    while choice not in pets:
+        choice = input("Invalid. Please enter 1, 2, 3, or 4: ")
+
+    selected_pet = pets[choice]
+
+    name = input(f"What would you like to name your {selected_pet['type']}? ").strip()
+    while not name.isalpha() or len(name) > 12:
+        name = input("❌ Invalid name. Please use only letters (max 12 characters): ").strip()
+
+    selected_pet["name"] = name.capitalize()
+    return selected_pet
+
+# ------------------------
+# 🎮 Action Functions + State Changes
+# ------------------------
+
+def feed(pet):
+    if pet["hunger"] <= 2:
+        print(f"\n⚠️ {pet['name']} is already full! No more food now.")
+    else:
+        print(f"\n[ACTION] You fed {pet['name']}.")
+        pet["hunger"] = max(0, pet["hunger"] - 3)
+        pet["energy"] = min(10, pet["energy"] + 1)
+
+def play(pet):
+    if pet["energy"] <= 1:
+        print(f"\n⚠️ {pet['name']} is too tired to play. Let it rest first!")
+    else:
+        print(f"\n[ACTION] You played with {pet['name']}.")
+        pet["happiness"] = min(10, pet["happiness"] + 2)
+        pet["energy"] = max(0, pet["energy"] - 2)
+        pet["hunger"] = min(10, pet["hunger"] + 1)
+
+def rest(pet):
+    if pet["energy"] >= 9:
+        print(f"\n⚠️ {pet['name']} is already full of energy! No nap needed.")
+    else:
+        print(f"\n[ACTION] {pet['name']} is taking a nap.")
+        pet["energy"] = min(10, pet["energy"] + 3)
+        pet["hunger"] = min(10, pet["hunger"] + 1)
+
+def talk(pet):
+    print(f"\n[ACTION] You talked to {pet['name']}.")
+    pet["happiness"] = min(10, pet["happiness"] + 1)
+
+    if pet["hunger"] >= 8:
+        print(f"{pet['name']} says: 'I'm too hungry to chat... 😡'")
+    elif pet["energy"] <= 2:
+        print(f"{pet['name']} says: 'Zzz... I'm too tired to talk... 🥱'")
+    elif pet["happiness"] >= 8:
+        print(f"{pet['name']} says: 'Yay! You're the best! 😄'")
+    else:
+        print(f"{pet['name']} says: 'Hi there! 🐾'")
+
+def update_status(pet):
+    pet["hunger"] = min(10, pet["hunger"] + 1)
+    pet["energy"] = max(0, pet["energy"] - 1)
+
+# ------------------------
+# 🌟 Random Event Module
+# ------------------------
+
+def random_event(pet):
+    chance = random.randint(1, 10)
+    if chance == 1:
+        print(f"\n🌪️ Random Event: {pet['name']} sneezed loudly! Happiness -1")
+        pet["happiness"] = max(0, pet["happiness"] - 1)
+    elif chance == 2:
+        print(f"\n🎁 Random Event: {pet['name']} found a mysterious snack! Hunger -1")
+        pet["hunger"] = max(0, pet["hunger"] - 1)
+    elif chance == 3:
+        print(f"\n💤 Random Event: {pet['name']} took a surprise nap! Energy +1")
+        pet["energy"] = min(10, pet["energy"] + 1)
+
+# ------------------------
+# 📊 Status Display Module
+# ------------------------
+
+def get_mood(pet):
+    if pet["hunger"] >= 8:
+        return "😡 I'm starving! Feed me now!!"
+    elif pet["happiness"] >= 8:
+        return "😄 I love you so much, meow~!"
+    elif pet["energy"] <= 2:
+        return "🥱 I'm so sleepy... can I nap on your lap?"
+    else:
+        return "🙂 I'm feeling okay~ just hanging out!"
+
+def show_status(pet):
+    print("\n" + "=" * 30)
+    print(f"📋 {pet['type']} {pet['name']}'s Status:")
+    print(f"  Hunger:    {pet['hunger']}/10")
+    print(f"  Happiness: {pet['happiness']}/10")
+    print(f"  Energy:    {pet['energy']}/10")
+    print("=" * 30)
+    print(f"🐾 Mood Bubble: {get_mood(pet)}")
+    print("=" * 30)
+
+# ------------------------
+# 🖼️ ASCII Art on Exit
+# ------------------------
+
+def show_ascii_art(pet):
+    print("\nHere's your pet saying goodbye:\n")
+    if pet["type"] == "Dog":
+        print(r"""
+  |\_/|
+ /     \
+(  o o  )
+ >  ^  <   Woof!
+""")
+    elif pet["type"] == "Cat":
+        print(r"""
+ /\_/\
+( o.o )
+ > ^ <   Meow!
+""")
+    elif pet["type"] == "Bunny":
+        print(r"""
+ (\_/)
+ ( •_•)
+ / >🍎   Bye-bye!
+""")
+    elif pet["type"] == "Turtle":
+        print(r"""
+     _____     ____
+   /      \~~~/    \
+ (    🐢     o o    )
+  \_____/~\_______/
+   Slow but steady!
+""")
+
+# ------------------------
+# 🚀 Main Program Logic
+# ------------------------
+
+def handle_action(choice, pet):
+    if choice == "1":
+        feed(pet)
+    elif choice == "2":
+        play(pet)
+    elif choice == "3":
+        rest(pet)
+    elif choice == "4":
+        talk(pet)
+    elif choice == "5":
+        show_status(pet)
+        return  # No update
+    elif choice == "6":
+        print(f"\n👋 Goodbye! {pet['name']} will miss you 🐾")
+        show_ascii_art(pet)
+        exit()
+    else:
+        print("\n❌ Invalid choice. Please try again.")
+        return
+
+    show_status(pet)
+    update_status(pet)
+    random_event(pet)
+
+def main():
+    pet = choose_pet()
+    print(f"\n🎉 You adopted a {pet['type']} named {pet['name']}!")
+
+    while True:
+        print("\nWhat would you like to do?")
+        print("1. Feed\n2. Play\n3. Rest\n4. Talk\n5. Show Status\n6. Exit")
+        action = input("Enter your choice (1-6): ")
+        handle_action(action, pet)
+
+# ------------------------
+# ▶️ Program Entry Point
+# ------------------------
+
+if __name__ == "__main__":
+    main()
